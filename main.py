@@ -1,6 +1,7 @@
 import os
 import time
 
+dificuldade = ""
 
 def verificacao():
 
@@ -36,10 +37,6 @@ def opcoes():
     elif inicio == "4": print("Adeus!"); time.sleep(1)
 
 
-def FuncaoUm():
-    0
-
-
 def FuncaoDois():
     print("Link do PDF das regras: https://www.bauru.unesp.br/Home/Div.Tec.Biblioteca/bd-manual-uno.pdf")
     time.sleep(1)
@@ -47,11 +44,35 @@ def FuncaoDois():
 
 
 def FuncaoTres():
-    0
+    global dificuldade
+    while True:
+        os.system('cls')
+        dificuldade = input(str("""
+    Selecione a dificuldade:
+            
+    (1) Facil      (O bot esta muito azarado hoje e vai pegar as piores cartas.)
+    (2) Medio      (Modo de jogo normal, chance padrao de pegar cada carta)
+    (3) Dificil    (O bot esta com muita sorte hoje e vai fazer de tudo pra voce perder.)
+    (4)  ...       (Apenas nao perca)
+            
+    ==> """))
+        if dificuldade in ["1", "2", "3", "4"]:
+            print(f"Dificuldade selecionada: {dificuldade}")
+            time.sleep(1)
+            caminhos()
+            break
+        else: print("Opção invalida, tente novamente"); time.sleep(1)
 
 
-def FuncaoQuatro():
-    0
+def FuncaoUm():
+    os.system("cls")
+
+    #cartas =
+    CartAz, Cartve, CartAm, CartVerm = 9
+    
+
+
+
 
 
 inicio = input(str((""" 
@@ -77,7 +98,7 @@ inicio = input(str(("""
             \::/____/                \::/    /                 ~~              
              ~~                       \/____/                                         
     -----------------------------------------------------------------------------
-    Seja bem-vindo ao UNO, desenvolvido por Fred, Nata e Miguel Yoshida. :)
+    Seja bem-vindo ao UNO, desenvolvido por Fred Luis, Nata Ramos e Miguel Yoshida. :)
 
     O que deseja fazer?
     (1) Jogar
