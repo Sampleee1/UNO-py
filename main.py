@@ -98,7 +98,7 @@ def FuncaoUm():
         
 
 
-#sdasdasdadadasdasddaasdasdasd
+#sdasdasdadadasdasddaasdasdasdkjhhkhhkjhk
 
 inicio = input(str((""" 
               _____                    _____                   _______         
