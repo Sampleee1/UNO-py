@@ -1,7 +1,12 @@
 import os
 import time
+import random
 
 dificuldade = ""
+
+def LimpaTela():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 
 def verificacao():
 
@@ -11,7 +16,7 @@ def verificacao():
             inicio = input(str("""Opção invalida, digite novamente! 
     ==> """)) 
         else: 
-            os.system('cls')
+            LimpaTela()
             opcoes()
             break
 
@@ -46,7 +51,7 @@ def FuncaoDois():
 def FuncaoTres():
     global dificuldade
     while True:
-        os.system('cls')
+        LimpaTela()
         dificuldade = input(str("""
     Selecione a dificuldade:
             
@@ -65,12 +70,32 @@ def FuncaoTres():
 
 
 def FuncaoUm():
-    os.system("cls")
+    LimpaTela()
 
-    #cartas =
-    CartAz, Cartve, CartAm, CartVerm = 9
+    class Cartas:
+        def __init__(self, cor, valor, tipo=None):
+            self.cor = cor
+            self.valor = valor
+            self.tipo = tipo
+
+        def __str__(self):
+            if self.tipo == "normal":
+                return f"{self.valor} ({self.cor})"
+            elif self.tipo == "especial":
+                return f"{self.valor} ({self.cor}, Especial)"
+            elif self.tipo == "coringa":
+                return f"{self.valor} (Coringa)"
+            return "Carta desconhecida"
     
+    def criar_baralho():
+        cores = ["Azul", "Verde", "Amarelo", "Vermelho"]
+        valores = list(range(0, 10)) + ["+2", "Bloqueio", "Reverso"]
+        baralho = []
 
+
+    def embaralhar(baralho):
+        baralho.shuffle()
+        
 
 
 
