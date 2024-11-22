@@ -4,6 +4,23 @@ import random
 
 dificuldade = ""
 
+
+class Cartas:
+    def __init__(self, cor, valor, tipo=None):
+        self.cor = cor
+        self.valor = valor
+        self.tipo = tipo
+
+    def __str__(self):
+        if self.tipo == "normal":
+            return f"{self.valor} ({self.cor})"
+        elif self.tipo == "especial":
+            return f"{self.valor} ({self.cor}, Especial)"
+        elif self.tipo == "coringa":
+            return f"{self.valor} (Coringa)"
+        return "Carta desconhecida"
+
+
 def LimpaTela():
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -39,7 +56,29 @@ def opcoes():
     if inicio == "1": FuncaoUm()
     elif inicio == "2": FuncaoDois()
     elif inicio == "3": FuncaoTres()
-    elif inicio == "4": print("Adeus!"); time.sleep(1)
+    elif inicio == "4": print("Adeus!"); time.sleep(1)   
+    
+def criar_baralho():
+    cores = ["Azul", "Verde", "Amarelo", "Vermelho"]
+    valores = list(range(0, 10)) + ["+2", "Bloqueio", "Reverso"]
+    baralho = []
+
+    for cor in cores:
+        for valor in valores:
+            if isinstance(valor, int):
+                tipo = "Normal"
+            else:
+                tipo = "Especial"
+            temp = Cartas()
+            if temp.tipo == "Especial":
+                baralho.append(Cartas(cor, valor, tipo))
+            baralho.append(Cartas(cor, valor, tipo))
+
+    for _ in range(4):
+        baralho.append(Cartas(None, "+4", "Coringa"))
+        baralho.append(Cartas(None, "Trocar a cor", "Coringa"))
+    return baralho
+
 
 
 def FuncaoDois():
@@ -72,32 +111,11 @@ def FuncaoTres():
 def FuncaoUm():
     LimpaTela()
 
-    class Cartas:
-        def __init__(self, cor, valor, tipo=None):
-            self.cor = cor
-            self.valor = valor
-            self.tipo = tipo
+    baralho = criar_baralho()
+    random.shuffle(baralho)
 
-        def __str__(self):
-            if self.tipo == "normal":
-                return f"{self.valor} ({self.cor})"
-            elif self.tipo == "especial":
-                return f"{self.valor} ({self.cor}, Especial)"
-            elif self.tipo == "coringa":
-                return f"{self.valor} (Coringa)"
-            return "Carta desconhecida"
-    
-    def criar_baralho():
-        cores = ["Azul", "Verde", "Amarelo", "Vermelho"]
-        valores = list(range(0, 10)) + ["+2", "Bloqueio", "Reverso"]
-        baralho = []
-
-
-    def embaralhar(baralho):
-        baralho.shuffle()
-        
-
-
+    for carta in baralho[:5]:
+        print(carta)
 
 
 inicio = input(str((""" 
