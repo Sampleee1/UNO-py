@@ -1,6 +1,7 @@
 import os
 import time
 import random
+import webbrowser
 
 dificuldade = ""
 
@@ -43,10 +44,11 @@ def opcoes():
 
 
 def FuncaoDois():
-    print("Link do PDF das regras: https://www.bauru.unesp.br/Home/Div.Tec.Biblioteca/bd-manual-uno.pdf")
-    time.sleep(1)
-    caminhos()
+    url = "https://www.bauru.unesp.br/Home/Div.Tec.Biblioteca/bd-manual-uno.pdf"
 
+    webbrowser.open_new_tab(url)
+
+    caminhos()
 
 def FuncaoTres():
     global dificuldade
@@ -96,7 +98,6 @@ def FuncaoUm():
     def embaralhar(baralho):
         baralho.shuffle()
         
-
 
 
 
