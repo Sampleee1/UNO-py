@@ -13,11 +13,11 @@ class Cartas:
         self.tipo = tipo
 
     def __str__(self):
-        if self.tipo == "normal":
+        if self.tipo == "Normal":
             return f"{self.valor} ({self.cor})"
-        elif self.tipo == "especial":
+        elif self.tipo == "Especial":
             return f"{self.valor} ({self.cor}, Especial)"
-        elif self.tipo == "coringa":
+        elif self.tipo == "Coringa":
             return f"{self.valor} (Coringa)"
         return "Carta desconhecida"
 
@@ -64,19 +64,21 @@ def criar_baralho():
     valores = list(range(0, 10)) + ["+2", "Bloqueio", "Reverso"]
     baralho = []
 
-    for cor in cores:
+    for cor in cores:                                            # Criação do primeiro baralho
         for valor in valores:
             if isinstance(valor, int):
                 tipo = "Normal"
             else:
                 tipo = "Especial"
-            temp = Cartas()
-            if temp.tipo == "Especial":
                 baralho.append(Cartas(cor, valor, tipo))
             baralho.append(Cartas(cor, valor, tipo))
+    
+    for carta in baralho[:63]:                                    # Criação do "Segundo Baralho"
+        if carta.valor != 0 and carta.tipo != "Especial":
+            baralho.append(carta)
 
     for _ in range(4):
-        baralho.append(Cartas(None, "+4", "Coringa"))
+        baralho.append(Cartas(None, "+4", "Coringa"))            # Criação das Coringas
         baralho.append(Cartas(None, "Trocar a cor", "Coringa"))
     return baralho
 
@@ -84,7 +86,6 @@ def criar_baralho():
 
 def FuncaoDois():
     url = "https://www.bauru.unesp.br/Home/Div.Tec.Biblioteca/bd-manual-uno.pdf"
-
     webbrowser.open_new_tab(url)
 
     caminhos()
@@ -116,7 +117,7 @@ def FuncaoUm():
     baralho = criar_baralho()
     random.shuffle(baralho)
 
-    for carta in baralho[:5]:
+    for carta in baralho:
         print(carta)
 
 inicio = input(str((""" 
@@ -146,7 +147,7 @@ inicio = input(str(("""
 
     O que deseja fazer?
     (1) Jogar
-    (2) Ver regras
+    (2) Ver regras (Vai abrir o navegador)
     (3) Selecionar dificuldade
     (4) Sair
 
