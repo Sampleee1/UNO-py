@@ -25,6 +25,21 @@ class Cartas:
 def LimpaTela():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+def tela_carregamento(tempo = 1):
+    simbolos = ["|", "/", "-", "\\"]
+    fim = time.time() + tempo
+    while fim > time.time():
+        for simbolo in simbolos:
+                print("Carregando", simbolo, end="\r")
+                time.sleep(0.2)
+    print("Carregamento concluido")
+
+def ver_cartas(player):
+    i = 0
+    for carta in player:
+        print(f"    {str(carta).ljust(35)} -- ({i})")
+        i+=1
+
 
 def verificacao():
 
@@ -82,6 +97,24 @@ def criar_baralho():
         baralho.append(Cartas(None, "Trocar a cor", "Coringa"))
     return baralho
 
+def sortear_cartas(baralho):
+    player = []
+    bot = []
+
+    for x in range(7):  
+        if baralho:
+            player.append(baralho.pop())
+        if baralho:
+            bot.append(baralho.pop())
+
+    if dificuldade == "1":
+        0
+    elif dificuldade == "2":
+        0
+    elif dificuldade == "3" or dificuldade == "4":
+        0
+
+    return player, bot
 
 
 def FuncaoDois():
@@ -116,9 +149,29 @@ def FuncaoUm():
 
     baralho = criar_baralho()
     random.shuffle(baralho)
+    player, bot = sortear_cartas(baralho)
 
-    for carta in baralho:
-        print(carta)
+    tela_carregamento()
+    print("""
+O jogo começou!
+Suas cartas:
+    """)
+    print(f"{ver_cartas(player)}")
+    r = int(input("""
+          
+O que deseja fazer agora?
+          
+(1) Jogar carta (Escolher numero)
+(2) Comprar carta
+(3) 
+    """))
+    
+    
+    
+    # for carta in bot:
+    #     print(carta)
+
+
 
 inicio = input(str((""" 
               _____                    _____                   _______         
