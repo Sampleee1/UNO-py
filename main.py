@@ -5,6 +5,32 @@ import webbrowser
 
 dificuldade = ""
 
+def Salva_rancking(nome,dificuldade):
+    #abre um arquivo para armazenar o nome dos jogadores 
+    rank = open ("Ranking.txt","r+")
+    #for linha in rank.readlines():
+
+
+
+    #variaveis gravados no arquigo
+    nome=f"{nome}"
+    nivel=f"{dificuldade}"
+    resultado=""
+
+    #monta a linha para ser gravada 
+    linha =f"{nome}#{nivel}#{resultado}\n"
+    #faz a gravação
+    rank.write(linha)
+    
+    rank.close()
+
+def FuncaoCinco():
+    global n_jogador
+    n_jogador= input(str("digite o nome do jogador: "))
+    #Salva_rancking(n_jogador,dificuldade)    
+    LimpaTela()
+    caminhos()
+    return(n_jogador)
 
 class Cartas:
     def __init__(self, cor, valor, tipo=None):
@@ -45,7 +71,7 @@ def verificacao():
 
     while True:
         global inicio
-        if inicio not in ["1", "2", "3", "4"]:
+        if inicio not in ["1", "2", "3", "4","5"]:
             inicio = input(str("""Opção invalida, digite novamente! 
     ==> """)) 
         else: 
@@ -62,6 +88,7 @@ def caminhos():
     (1) Jogar
     (2) Ver regras
     (3) Selecionar dificuldade
+    (5) entrar com nome jogador
     (4) Sair
         
     ==> """))
@@ -72,6 +99,7 @@ def opcoes():
     if inicio == "1": FuncaoUm()
     elif inicio == "2": FuncaoDois()
     elif inicio == "3": FuncaoTres()
+    elif inicio == "5": FuncaoCinco()
     elif inicio == "4": print("Adeus!"); time.sleep(1)   
     
 def criar_baralho():
@@ -142,6 +170,8 @@ def FuncaoTres():
             caminhos()
             break
         else: print("Opção invalida, tente novamente"); time.sleep(1)
+    #Salva_rancking(dificuldade)
+    return(dificuldade)
 
 
 def FuncaoUm():
@@ -202,6 +232,7 @@ inicio = input(str(("""
     (1) Jogar
     (2) Ver regras (Vai abrir o navegador)
     (3) Selecionar dificuldade
+    (5) Inserir nome do jogador
     (4) Sair
 
     ==> """)))
