@@ -5,6 +5,24 @@ import webbrowser
 
 dificuldade = ""
 
+
+
+class Cartas:
+    def __init__(self, cor, valor, tipo=None):
+        self.cor = cor
+        self.valor = valor
+        self.tipo = tipo
+
+    def __str__(self):
+        if self.tipo == "Normal":
+            return f"{self.valor} ({self.cor})"
+        elif self.tipo == "Especial":
+            return f"{self.valor} ({self.cor}, Especial)"
+        elif self.tipo == "Coringa":
+            return f"{self.valor} (Coringa)"
+        return "Carta desconhecida"
+
+
 def Salva_rancking(nome,dificuldade):
     #abre um arquivo para armazenar o nome dos jogadores 
     rank = open ("Ranking.txt","r+")
@@ -24,30 +42,6 @@ def Salva_rancking(nome,dificuldade):
     
     rank.close()
 
-def FuncaoCinco():
-    global n_jogador
-    n_jogador= input(str("digite o nome do jogador: "))
-    #Salva_rancking(n_jogador,dificuldade)    
-    LimpaTela()
-    caminhos()
-    return(n_jogador)
-
-class Cartas:
-    def __init__(self, cor, valor, tipo=None):
-        self.cor = cor
-        self.valor = valor
-        self.tipo = tipo
-
-    def __str__(self):
-        if self.tipo == "Normal":
-            return f"{self.valor} ({self.cor})"
-        elif self.tipo == "Especial":
-            return f"{self.valor} ({self.cor}, Especial)"
-        elif self.tipo == "Coringa":
-            return f"{self.valor} (Coringa)"
-        return "Carta desconhecida"
-
-
 def LimpaTela():
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -58,13 +52,16 @@ def tela_carregamento(tempo = 1):
         for simbolo in simbolos:
                 print("Carregando", simbolo, end="\r")
                 time.sleep(0.2)
-    print("Carregamento concluido")
 
 def ver_cartas(player):
     i = 0
     for carta in player:
         print(f"    {str(carta).ljust(35)} -- ({i})")
         i+=1
+
+def ConsCarta(cartaJogada):
+    if cartaJogada.tipo == "Especial":
+        0
 
 
 def verificacao():
@@ -101,6 +98,13 @@ def opcoes():
     elif inicio == "3": FuncaoTres()
     elif inicio == "5": FuncaoCinco()
     elif inicio == "4": print("Adeus!"); time.sleep(1)   
+
+def carta_valida(ultima_carta, cartaJogada):
+    if (ultima_carta.cor == cartaJogada.cor or
+    ultima_carta.valor == cartaJogada.valor or
+    cartaJogada.tipo == "Coringa") :
+        return True
+    else: return False
     
 def criar_baralho():
     cores = ["Azul", "Verde", "Amarelo", "Vermelho"]
@@ -134,16 +138,14 @@ def sortear_cartas(baralho):
             player.append(baralho.pop())
         if baralho:
             bot.append(baralho.pop())
-
-    if dificuldade == "1":
-        0
-    elif dificuldade == "2":
-        0
-    elif dificuldade == "3" or dificuldade == "4":
-        0
-
     return player, bot
 
+def comprar_carta(player, baralho):
+    if baralho:
+        carta = baralho.pop()
+        player.append(carta)
+        print(f"Você comprou: {carta}")
+    else: print("Não há mais cartas no baralho!")
 
 def FuncaoDois():
     url = "https://www.bauru.unesp.br/Home/Div.Tec.Biblioteca/bd-manual-uno.pdf"
@@ -173,33 +175,54 @@ def FuncaoTres():
     #Salva_rancking(dificuldade)
     return(dificuldade)
 
+def FuncaoCinco():
+    global n_jogador
+    n_jogador= input(str("digite o nome do jogador: "))
+    #Salva_rancking(n_jogador,dificuldade)    
+    LimpaTela()
+    caminhos()
+    return(n_jogador)
+
 
 def FuncaoUm():
     LimpaTela()
-
+    ultima_carta = []
     baralho = criar_baralho()
     random.shuffle(baralho)
     player, bot = sortear_cartas(baralho)
 
     tela_carregamento()
-    print("""
-O jogo começou!
-Suas cartas:
-    """)
-    print(f"{ver_cartas(player)}")
-    r = int(input("""
-          
-O que deseja fazer agora?
-          
-(1) Jogar carta (Escolher numero)
-(2) Comprar carta
-(3) 
-    """))
-    
-    
-    
-    # for carta in bot:
-    #     print(carta)
+    print("O jogo começou! \n")
+    temp = False
+    while temp == False:
+        ultima_carta = baralho.pop(0)
+        if ultima_carta.tipo != "Coringa" and ultima_carta.tipo != "Especial":
+            temp = True
+        else: baralho.append(ultima_carta)
+
+    while True:
+        print("Suas cartas:")
+        print(f"{ver_cartas(player)}")
+        print(f"Ultima carta na mesa - ({ultima_carta})")
+        print(f"Quantidade de cartas do bot: {len(bot)}")
+        r = int(input("""
+                    
+    O que deseja fazer agora?
+            
+    (1) Jogar carta (Escolher numero)
+    (2) Comprar carta (escreva 99)
+    (3) 
+        ==> """))
+        if r >= 0 and r <= (len(player) - 1) and carta_valida(ultima_carta, cartaJogada = player[r]) == True:
+            print(f"Você jogou a carta {player[r]} \n")
+            ConsCarta(cartaJogada = player[r])
+            ultima_carta = player.pop(r)
+            time.sleep(1.5)
+        elif r != 99: print("Opção invalida, tente novamente"); time.sleep(1.5)
+        else: 
+            comprar_carta(player, baralho)
+        LimpaTela()
+        
 
 
 
@@ -232,8 +255,8 @@ inicio = input(str(("""
     (1) Jogar
     (2) Ver regras (Vai abrir o navegador)
     (3) Selecionar dificuldade
-    (5) Inserir nome do jogador
     (4) Sair
+    (5) Inserir nome do jogador
 
     ==> """)))
 
