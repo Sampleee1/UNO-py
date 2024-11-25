@@ -6,7 +6,6 @@ import webbrowser
 dificuldade = ""
 
 
-
 class Cartas:
     def __init__(self, cor, valor, tipo=None):
         self.cor = cor
@@ -59,8 +58,20 @@ def ver_cartas(player):
         print(f"    {str(carta).ljust(35)} -- ({i})")
         i+=1
 
-def ConsCarta(cartaJogada):
+def Consequencia_Carta(baralho, player, bot, PlayerouBot, cartaJogada):
     if cartaJogada.tipo == "Especial":
+        if cartaJogada.valor == "+2":
+            quant = 2
+            comprar_carta_bot(baralho, bot, quant) if PlayerouBot == "Player" else comprar_carta(baralho, player, quant)
+        elif cartaJogada.valor == "Bloqueio" or cartaJogada.valor == "Reverso":
+            0
+    elif cartaJogada.tipo == "Coringa":
+        if cartaJogada.valor == "+4":
+            quant = 4
+            comprar_carta_bot(baralho, bot, quant) if PlayerouBot == "Player" else comprar_carta(baralho, player, quant)
+        elif cartaJogada.valor == "Trocar a cor":
+            0
+    else: 
         0
 
 
@@ -140,11 +151,18 @@ def sortear_cartas(baralho):
             bot.append(baralho.pop())
     return player, bot
 
-def comprar_carta(player, baralho):
+def comprar_carta(baralho, player, quant):
     if baralho:
-        carta = baralho.pop()
-        player.append(carta)
-        print(f"Você comprou: {carta}")
+        for x in range(quant):
+            carta = baralho.pop()
+            player.append(carta)
+    else: print("Não há mais cartas no baralho!")
+
+def comprar_carta_bot(baralho, bot, quant):
+    if baralho:
+        for x in range(quant):
+            carta = baralho.pop()
+            bot.append(carta)
     else: print("Não há mais cartas no baralho!")
 
 def FuncaoDois():
@@ -215,12 +233,12 @@ def FuncaoUm():
         ==> """))
         if r >= 0 and r <= (len(player) - 1) and carta_valida(ultima_carta, cartaJogada = player[r]) == True:
             print(f"Você jogou a carta {player[r]} \n")
-            ConsCarta(cartaJogada = player[r])
+            Consequencia_Carta(baralho, player, bot, PlayerouBot = "Player", cartaJogada = player[r])
             ultima_carta = player.pop(r)
             time.sleep(1.5)
         elif r != 99: print("Opção invalida, tente novamente"); time.sleep(1.5)
         else: 
-            comprar_carta(player, baralho)
+            comprar_carta(baralho, player, quant = 1)
         LimpaTela()
         
 
