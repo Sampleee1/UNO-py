@@ -96,8 +96,8 @@ def caminhos():
     (1) Jogar
     (2) Ver regras
     (3) Selecionar dificuldade
-    (5) entrar com nome jogador
-    (4) Sair
+    (4) entrar com nome jogador
+    (5) Sair
         
     ==> """))
     verificacao()
@@ -107,8 +107,8 @@ def opcoes():
     if inicio == "1": FuncaoUm()
     elif inicio == "2": FuncaoDois()
     elif inicio == "3": FuncaoTres()
-    elif inicio == "5": FuncaoCinco()
-    elif inicio == "4": print("Adeus!"); time.sleep(1)   
+    elif inicio == "4": FuncaoCinco()
+    elif inicio == "5": print("Adeus!"); time.sleep(1)   
 
 def carta_valida(ultima_carta, cartaJogada):
     if (ultima_carta.cor == cartaJogada.cor or
@@ -273,8 +273,9 @@ inicio = input(str(("""
     (1) Jogar
     (2) Ver regras (Vai abrir o navegador)
     (3) Selecionar dificuldade
-    (4) Sair
-    (5) Inserir nome do jogador
+    (4) Inserir nome do jogador
+    (5) Sair
+    
 
     ==> """)))
 
