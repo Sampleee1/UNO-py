@@ -4,6 +4,7 @@ import random
 import webbrowser
 
 dificuldade = ""
+vez = 0
 
 
 class Cartas:
@@ -58,21 +59,31 @@ def ver_cartas(player):
         print(f"    {str(carta).ljust(35)} -- ({i})")
         i+=1
 
-def Consequencia_Carta(baralho, player, bot, PlayerouBot, cartaJogada):
+def Consequencia_Carta(ultima_carta, baralho, player, bot, PlayerouBot, cartaJogada):
+    global vez
     if cartaJogada.tipo == "Especial":
         if cartaJogada.valor == "+2":
             quant = 2
             comprar_carta_bot(baralho, bot, quant) if PlayerouBot == "Player" else comprar_carta(baralho, player, quant)
         elif cartaJogada.valor == "Bloqueio" or cartaJogada.valor == "Reverso":
-            0
+            vez += 1
     elif cartaJogada.tipo == "Coringa":
         if cartaJogada.valor == "+4":
             quant = 4
             comprar_carta_bot(baralho, bot, quant) if PlayerouBot == "Player" else comprar_carta(baralho, player, quant)
         elif cartaJogada.valor == "Trocar a cor":
-            0
+            while True:
+                CorEsc = input(str("Qual cor voce deseja? ==> ")).lower()
+                ultima_carta = Cartas(CorEsc, None, None)
+                if CorEsc == "vermelho" or CorEsc == "azul" or CorEsc == "verde" or CorEsc == "amarelo":
+                    break
+                else: print("Cor escolhida incorretamente!"); time.sleep(1)
     else: 
         0
+
+
+def bot_jogada():
+    0
 
 
 def verificacao():
@@ -203,6 +214,7 @@ def FuncaoCinco():
 
 
 def FuncaoUm():
+    global vez
     LimpaTela()
     ultima_carta = []
     baralho = criar_baralho()
@@ -219,11 +231,13 @@ def FuncaoUm():
         else: baralho.append(ultima_carta)
 
     while True:
-        print("Suas cartas:")
-        print(f"{ver_cartas(player)}")
-        print(f"Ultima carta na mesa - ({ultima_carta})")
-        print(f"Quantidade de cartas do bot: {len(bot)}")
-        r = int(input("""
+ 
+        if vez%2 == 0:
+            print("Suas cartas:")
+            print(f"{ver_cartas(player)}")
+            print(f"Ultima carta na mesa - ({ultima_carta})")
+            print(f"Quantidade de cartas do bot: {len(bot)}")
+            r = int(input("""
                     
     O que deseja fazer agora?
             
@@ -231,15 +245,19 @@ def FuncaoUm():
     (2) Comprar carta (escreva 99)
     (3) 
         ==> """))
-        if r >= 0 and r <= (len(player) - 1) and carta_valida(ultima_carta, cartaJogada = player[r]) == True:
-            print(f"Você jogou a carta {player[r]} \n")
-            Consequencia_Carta(baralho, player, bot, PlayerouBot = "Player", cartaJogada = player[r])
-            ultima_carta = player.pop(r)
-            time.sleep(1.5)
-        elif r != 99: print("Opção invalida, tente novamente"); time.sleep(1.5)
-        else: 
-            comprar_carta(baralho, player, quant = 1)
-        LimpaTela()
+            if r >= 0 and r <= (len(player) - 1) and carta_valida(ultima_carta, cartaJogada = player[r]) == True:
+                print(f"Você jogou a carta {player[r]} \n")
+                Consequencia_Carta(ultima_carta, baralho, player, bot, PlayerouBot = "Player", cartaJogada = player[r])
+                ultima_carta = player.pop(r)
+
+                time.sleep(1.5)
+            elif r != 99: print("Opção invalida, tente novamente"); time.sleep(1.5)
+            else: 
+                comprar_carta(baralho, player, quant = 1)
+            LimpaTela()
+            vez += 1
+
+        else: bot_jogada()
         
 
 
