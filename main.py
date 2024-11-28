@@ -22,24 +22,54 @@ class Cartas:
         return "Carta desconhecida"
 
 
-def Salva_rancking(nome,dificuldade):
-    #abre um arquivo para armazenar o nome dos jogadores 
-    rank = open ("Ranking.txt","r+")
-    #for linha in rank.readlines():
+def Salva_rancking(nome,resultado):
+        arquivo_ranking = "Ranking.txt"
 
+    # Certifica-se de que o arquivo existe
+        if not os.path.exists(arquivo_ranking):
+            with open(arquivo_ranking, "w") as f:
+                f.write("Nome#Resultado\n")  # Cabeçalho
 
+    # Lê os dados existentes
+        with open(arquivo_ranking, "r") as f:
+            linhas = f.readlines()
 
-    #variaveis gravados no arquigo
-    nome=f"{nome}"
-    nivel=f"{dificuldade}"
-    resultado=""
+    # Processa os dados em uma lista de dicionários
+        dados = [dict(zip(["Nome", "Resultado"], linha.strip().split("#"))) for linha in linhas[1:]]
 
-    #monta a linha para ser gravada 
-    linha =f"{nome}#{nivel}#{resultado}\n"
-    #faz a gravação
-    rank.write(linha)
-    
-    rank.close()
+    # Verifica se o jogador já existe e atualiza o resultado
+        for jogador in dados:
+            if jogador["Nome"] == nome:
+                jogador["Resultado"] = resultado
+                break
+        else:
+            # Adiciona um novo jogador ao ranking
+            dados.append({"Nome": nome, "Resultado": resultado})
+
+    # Ordena por resultado (se numérico)
+        dados.sort(key=lambda x: int(x["Resultado"]) if x["Resultado"].isdigit() else 0, reverse=True)
+
+    # Escreve os dados de volta ao arquivo
+        with open(arquivo_ranking, "w") as f:
+            f.write("Nome#Resultado\n")
+            for jogador in dados:
+                f.write(f'{jogador["Nome"]}#{jogador["Resultado"]}\n')
+
+# Função para exibir o ranking
+def Mostrar_ranking():
+    arquivo_ranking = "Ranking.txt"
+    if not os.path.exists(arquivo_ranking):
+        print("Nenhum ranking disponível. Jogue para criar o ranking!")
+        return
+        
+        ###########
+
+    with open(arquivo_ranking, "r") as f:
+        linhas = f.readlines()
+
+    print("\n--- Ranking de Jogadores ---")
+    for linha in linhas:
+        print(linha.strip())
 
 def LimpaTela():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -79,7 +109,7 @@ def verificacao():
 
     while True:
         global inicio
-        if inicio not in ["1", "2", "3", "4","5"]:
+        if inicio not in ["1", "2", "3", "4","5","6"]:
             inicio = input(str("""Opção invalida, digite novamente! 
     ==> """)) 
         else: 
@@ -98,6 +128,7 @@ def caminhos():
     (3) Selecionar dificuldade
     (4) entrar com nome jogador
     (5) Sair
+    (6) monstra rancking
         
     ==> """))
     verificacao()
@@ -108,8 +139,9 @@ def opcoes():
     elif inicio == "2": FuncaoDois()
     elif inicio == "3": FuncaoTres()
     elif inicio == "4": FuncaoCinco()
+    elif inicio == "6": Mostrar_ranking()
     elif inicio == "5": print("Adeus!"); time.sleep(1)   
-
+    #elif inicio == "6": Mostrar_ranking()
 def carta_valida(ultima_carta, cartaJogada):
     if (ultima_carta.cor == cartaJogada.cor or
     ultima_carta.valor == cartaJogada.valor or
