@@ -39,7 +39,7 @@ class Cartas:
             return f"{self.valor} ({self.cor}, Especial)"
         elif self.tipo == "Coringa":
             return f"{self.valor} (Coringa)"
-        return f"Carta desconhecida ({self.cor})"
+        return "Carta desconhecida"
 
 
 def Salva_rancking(nome,resultado):
@@ -120,18 +120,11 @@ def Consequencia_Carta(ultima_carta, baralho, player, bot, PlayerouBot, cartaJog
             quant = 2
             comprar_carta_bot(baralho, bot, quant) if PlayerouBot == "Player" else comprar_carta(baralho, player, quant)
         elif cartaJogada.valor == "Bloqueio" or cartaJogada.valor == "Reverso":
-            0
+            vez += 1
     elif cartaJogada.tipo == "Coringa":
         if cartaJogada.valor == "+4":
             quant = 4
             comprar_carta_bot(baralho, bot, quant) if PlayerouBot == "Player" else comprar_carta(baralho, player, quant)
-            while True:
-                res = input(str("Qual cor voce deseja que continue o jogo?  ==> ")).lower()
-                if res in ["vermelho", "verde", "azul", "amarelo"]:
-                    ultima_carta = Cartas(res, None, None)
-                    player.pop(r)
-                    break
-                else: print("Cor escolhida incorretamente!"); time.sleep(1)
         elif cartaJogada.valor == "Trocar a cor":
             while True:
                 CorEsc = input(str("Qual cor voce deseja? ==> ")).lower()
@@ -192,7 +185,7 @@ def carta_valida(ultima_carta, cartaJogada):
     else: return False
     
 def criar_baralho():
-    cores = ["azul", "verde", "amarelo", "vermelho"]
+    cores = ["Azul", "Verde", "Amarelo", "Vermelho"]
     valores = list(range(0, 10)) + ["+2", "Bloqueio", "Reverso"]
     baralho = []
 
