@@ -19,7 +19,7 @@ class Cartas:
             return f"{self.valor} ({self.cor}, Especial)"
         elif self.tipo == "Coringa":
             return f"{self.valor} (Coringa)"
-        return "Carta desconhecida"
+        return f"Carta desconhecida ({self.cor})"
 
 
 def Salva_rancking(nome,dificuldade):
@@ -58,21 +58,30 @@ def ver_cartas(player):
         print(f"    {str(carta).ljust(35)} -- ({i})")
         i+=1
 
-def Consequencia_Carta(baralho, player, bot, PlayerouBot, cartaJogada):
+def Consequencia_Carta(r, ultima_carta, baralho, player, bot, PlayerouBot, cartaJogada):
     if cartaJogada.tipo == "Especial":
         if cartaJogada.valor == "+2":
             quant = 2
             comprar_carta_bot(baralho, bot, quant) if PlayerouBot == "Player" else comprar_carta(baralho, player, quant)
         elif cartaJogada.valor == "Bloqueio" or cartaJogada.valor == "Reverso":
             0
+        player.pop(r)
     elif cartaJogada.tipo == "Coringa":
         if cartaJogada.valor == "+4":
             quant = 4
             comprar_carta_bot(baralho, bot, quant) if PlayerouBot == "Player" else comprar_carta(baralho, player, quant)
+            while True:
+                res = input(str("Qual cor voce deseja que continue o jogo?  ==> ")).lower()
+                if res in ["vermelho", "verde", "azul", "amarelo"]:
+                    ultima_carta = Cartas(res, None, None)
+                    player.pop(r)
+                    break
+                else: print("Cor escolhida incorretamente!"); time.sleep(1)
         elif cartaJogada.valor == "Trocar a cor":
             0
-    else: 
-        0
+    else:
+        ultima_carta = player.pop(r)
+    return ultima_carta
 
 
 def verificacao():
@@ -118,7 +127,7 @@ def carta_valida(ultima_carta, cartaJogada):
     else: return False
     
 def criar_baralho():
-    cores = ["Azul", "Verde", "Amarelo", "Vermelho"]
+    cores = ["azul", "verde", "amarelo", "vermelho"]
     valores = list(range(0, 10)) + ["+2", "Bloqueio", "Reverso"]
     baralho = []
 
@@ -233,8 +242,8 @@ def FuncaoUm():
         ==> """))
         if r >= 0 and r <= (len(player) - 1) and carta_valida(ultima_carta, cartaJogada = player[r]) == True:
             print(f"Você jogou a carta {player[r]} \n")
-            Consequencia_Carta(baralho, player, bot, PlayerouBot = "Player", cartaJogada = player[r])
-            ultima_carta = player.pop(r)
+            ultima_carta = Consequencia_Carta(r, ultima_carta, baralho, player, bot, PlayerouBot = "Player", cartaJogada = player[r])
+
             time.sleep(1.5)
         elif r != 99: print("Opção invalida, tente novamente"); time.sleep(1.5)
         else: 
