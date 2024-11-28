@@ -2,9 +2,28 @@ import os
 import time
 import random
 import webbrowser
+import sys
 
 dificuldade = ""
 vez = 0
+
+#alternativa a msvcrt pois a mesma não funciona em multplataforma
+def esperar_tecla():  
+    """Aguarda o usuário pressionar qualquer tecla."""
+    if os.name == 'nt':  # Windows
+        import msvcrt
+        msvcrt.getch()
+    else:  # Linux/MacOS
+        import termios
+        import tty
+
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(fd)
+            sys.stdin.read(1)  # Lê uma única tecla
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
 
 class Cartas:
@@ -23,25 +42,60 @@ class Cartas:
         return "Carta desconhecida"
 
 
-def Salva_rancking(nome,dificuldade):
-    #abre um arquivo para armazenar o nome dos jogadores 
-    rank = open ("Ranking.txt","r+")
-    #for linha in rank.readlines():
+def Salva_rancking(nome,resultado):
+        arquivo_ranking = "Ranking.txt"
 
+    # Certifica-se de que o arquivo existe
+        if not os.path.exists(arquivo_ranking):
+            with open(arquivo_ranking, "w") as f:
+                f.write("Nome#Resultado\n")  # Cabeçalho
 
+    # Lê os dados existentes
+        with open(arquivo_ranking, "r") as f:
+            linhas = f.readlines()
 
-    #variaveis gravados no arquigo
-    nome=f"{nome}"
-    nivel=f"{dificuldade}"
-    resultado=""
+    # Processa os dados em uma lista de dicionários
+        dados = [dict(zip(["Nome", "Resultado"], linha.strip().split("#"))) for linha in linhas[1:]]
 
-    #monta a linha para ser gravada 
-    linha =f"{nome}#{nivel}#{resultado}\n"
-    #faz a gravação
-    rank.write(linha)
+    # Verifica se o jogador já existe e atualiza o resultado
+        for jogador in dados:
+            if jogador["Nome"] == nome:
+                jogador["Resultado"] = resultado
+                break
+        else:
+            # Adiciona um novo jogador ao ranking
+            dados.append({"Nome": nome, "Resultado": resultado})
+
+    # Ordena por resultado (se numérico)
+        dados.sort(key=lambda x: int(x["Resultado"]) if x["Resultado"].isdigit() else 0, reverse=True)
+
+    # Escreve os dados de volta ao arquivo
+        with open(arquivo_ranking, "w") as f:
+            f.write("Nome#Resultado\n")
+            for jogador in dados:
+                f.write(f'{jogador["Nome"]}#{jogador["Resultado"]}\n')
+
+# Função para exibir o ranking
+def Mostrar_ranking():
+    arquivo_ranking = "Ranking.txt"
+    if not os.path.exists(arquivo_ranking):
+        print("Nenhum ranking disponível. Jogue para criar o ranking!")
+        return
+        
+    with open(arquivo_ranking, "r") as f:
+        linhas = f.readlines()
+  
+    print("\n--- Ranking de Jogadores ---")
+    for linha in linhas:
+        print(linha.strip())
+    print("pressione qualquer tecla pra voltar ao menu principal")
     
-    rank.close()
 
+    esperar_tecla()
+    LimpaTela()
+    caminhos()
+
+    #aguarda o usuario pressionar qualquer tecla
 def LimpaTela():
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -90,7 +144,7 @@ def verificacao():
 
     while True:
         global inicio
-        if inicio not in ["1", "2", "3", "4","5"]:
+        if inicio not in ["1", "2", "3", "4","5","6"]:
             inicio = input(str("""Opção invalida, digite novamente! 
     ==> """)) 
         else: 
@@ -107,8 +161,9 @@ def caminhos():
     (1) Jogar
     (2) Ver regras
     (3) Selecionar dificuldade
-    (5) entrar com nome jogador
-    (4) Sair
+    (4) entrar com nome jogador
+    (5) Sair
+    (6) monstra rancking
         
     ==> """))
     verificacao()
@@ -118,9 +173,10 @@ def opcoes():
     if inicio == "1": FuncaoUm()
     elif inicio == "2": FuncaoDois()
     elif inicio == "3": FuncaoTres()
-    elif inicio == "5": FuncaoCinco()
-    elif inicio == "4": print("Adeus!"); time.sleep(1)   
-
+    elif inicio == "4": FuncaoCinco()
+    elif inicio == "6": Mostrar_ranking()
+    elif inicio == "5": print("Adeus!"); time.sleep(1)   
+    
 def carta_valida(ultima_carta, cartaJogada):
     if (ultima_carta.cor == cartaJogada.cor or
     ultima_carta.valor == cartaJogada.valor or
@@ -198,21 +254,22 @@ def FuncaoTres():
         if dificuldade in ["1", "2", "3", "4"]:
             print(f"Dificuldade selecionada: {dificuldade}")
             time.sleep(1)
+            LimpaTela()
             caminhos()
             break
         else: print("Opção invalida, tente novamente"); time.sleep(1)
-    #Salva_rancking(dificuldade)
+    #LimpaTela()
+    #caminhos()
     return(dificuldade)
 
 def FuncaoCinco():
     global n_jogador
     n_jogador= input(str("digite o nome do jogador: "))
-    #Salva_rancking(n_jogador,dificuldade)    
+    Salva_rancking(n_jogador,dificuldade)    
     LimpaTela()
     caminhos()
     return(n_jogador)
-
-
+    
 def FuncaoUm():
     global vez
     LimpaTela()
@@ -291,8 +348,10 @@ inicio = input(str(("""
     (1) Jogar
     (2) Ver regras (Vai abrir o navegador)
     (3) Selecionar dificuldade
-    (4) Sair
-    (5) Inserir nome do jogador
+    (4) Inserir nome do jogador
+    (5) Sair
+    (6) monstra rancking
+    
 
     ==> """)))
 
