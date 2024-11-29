@@ -165,14 +165,14 @@ def bot_jogada(ultima_carta, baralho, bot, player):
         else:
             print("Bot comprou uma carta.\n")
             comprar_carta_bot(baralho, bot, 1)
-        return ultima_carta
 
     elif dificuldade == 2:  # Médio
         # O bot pega a primeira carta válida
         jogaveis = [carta for carta in bot if carta_valida(ultima_carta, carta)]
         if jogaveis:
             cartaJogada = jogaveis[0]
-            print(f"Bot jogou: {cartaJogada}\n")
+            print(f"Bot jogou: {cartaJogada}!\n")
+            r = bot.index(cartaJogada)
             ultima_carta = Consequencia_Carta(r, cartaJogada, ultima_carta, baralho, player, bot, PlayerouBot="bot")
             time.sleep(1.5)
         else:
@@ -184,12 +184,9 @@ def bot_jogada(ultima_carta, baralho, bot, player):
         jogaveis = [carta for carta in bot if carta_valida(ultima_carta, carta)]
         if jogaveis:
             # Prioriza cartas estratégicas, como "Bloqueio", "+2", ou "Reverso"
-            cartaJogada = sorted(
-                jogaveis,
-                key=lambda c: (c.valor in ["+2", "Bloqueio", "Reverso", "+4"], c.valor),
-                reverse=True
-            )[0]
-            print(f"Bot jogou: {cartaJogada}")
+            cartaJogada = sorted(jogaveis, key=lambda c: (c.valor in ["+2", "Bloqueio", "Reverso", "+4"], c.valor), reverse=True)[0]
+            print(f"Bot jogou: {cartaJogada}!\n")
+            r = bot.index(cartaJogada)
             ultima_carta = Consequencia_Carta(r, cartaJogada, ultima_carta, baralho, player, bot, PlayerouBot="bot")
             time.sleep(1.5)
         else:
@@ -202,8 +199,7 @@ def bot_jogada(ultima_carta, baralho, bot, player):
             baralho.remove(melhor_carta)
             time.sleep(1)
     else: print("Dificuldade nao selecionada!")
-
-    vez += 1
+    
     return ultima_carta
 
 
