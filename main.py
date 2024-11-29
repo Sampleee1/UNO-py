@@ -56,7 +56,11 @@ def Salva_rancking(nome,resultado):
             dados.append({"Nome": nome, "Resultado": resultado})
 
     # Ordena por resultado (se numérico)
-        dados.sort(key=lambda x: int(x["Resultado"]) if x["Resultado"].isdigit() else 0, reverse=True)
+        dados.sort(
+    key=lambda x: int(x["Resultado"]) if isinstance(x["Resultado"], str) and x["Resultado"].isdigit() else int(x["Resultado"]) if isinstance(x["Resultado"], int) else 0,
+    reverse=True)
+
+       ## dados.sort(key=lambda x: int(x["Resultado"]) if isinstance (x["Resultado"],str).isdigit() else 0, reverse=True)
 
     # Escreve os dados de volta ao arquivo
         with open(arquivo_ranking, "w") as f:
