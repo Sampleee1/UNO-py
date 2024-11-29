@@ -4,8 +4,8 @@ import random
 import webbrowser
 import sys
 
-dificuldade = ""
-vez = 0
+dificuldade = vez = uno = 0
+nome = "Player"
 
 #alternativa a msvcrt pois a mesma não funciona em multplataforma
 def esperar_tecla():  
@@ -13,17 +13,6 @@ def esperar_tecla():
     if os.name == 'nt':  # Windows
         import msvcrt
         msvcrt.getch()
-    else:  # Linux/MacOS
-        import termios
-        import tty
-
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(fd)
-            sys.stdin.read(1)  # Lê uma única tecla
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
 
 class Cartas:
@@ -39,7 +28,7 @@ class Cartas:
             return f"{self.valor} ({self.cor}, Especial)"
         elif self.tipo == "Coringa":
             return f"{self.valor} (Coringa)"
-        return "Carta desconhecida"
+        return f"Carta desconhecida - ({self.cor})"
 
 
 def Salva_rancking(nome,resultado):
@@ -113,7 +102,7 @@ def ver_cartas(player):
         print(f"    {str(carta).ljust(35)} -- ({i})")
         i+=1
 
-def Consequencia_Carta(ultima_carta, baralho, player, bot, PlayerouBot, cartaJogada):
+def Consequencia_Carta(r, cartaJogada, ultima_carta, baralho, player, bot, PlayerouBot):
     global vez
     if cartaJogada.tipo == "Especial":
         if cartaJogada.valor == "+2":
@@ -121,23 +110,98 @@ def Consequencia_Carta(ultima_carta, baralho, player, bot, PlayerouBot, cartaJog
             comprar_carta_bot(baralho, bot, quant) if PlayerouBot == "Player" else comprar_carta(baralho, player, quant)
         elif cartaJogada.valor == "Bloqueio" or cartaJogada.valor == "Reverso":
             vez += 1
+        ultima_carta = Cartas(cartaJogada.cor, None, None)
+        player.pop(r) if PlayerouBot == "Player" else bot.pop(r)
     elif cartaJogada.tipo == "Coringa":
         if cartaJogada.valor == "+4":
             quant = 4
             comprar_carta_bot(baralho, bot, quant) if PlayerouBot == "Player" else comprar_carta(baralho, player, quant)
-        elif cartaJogada.valor == "Trocar a cor":
             while True:
-                CorEsc = input(str("Qual cor voce deseja? ==> ")).lower()
-                ultima_carta = Cartas(CorEsc, None, None)
-                if CorEsc == "vermelho" or CorEsc == "azul" or CorEsc == "verde" or CorEsc == "amarelo":
+                if PlayerouBot == "Player": res = input(str("Qual cor voce deseja que continue o jogo?  ==> ")).lower()
+                else:
+                    res = random.choice(["vermelho", "azul", "amarelo", "verde"])
+                    print(f"Cor escolhida pelo bot: {res}")
+                    time.sleep(1)
+                if res in ["vermelho", "verde", "azul", "amarelo"]:
+                    ultima_carta = Cartas(res, None, None)
                     break
                 else: print("Cor escolhida incorretamente!"); time.sleep(1)
+        elif cartaJogada.valor == "Trocar a cor":
+            while True:
+                if PlayerouBot == "Player": res = input(str("Qual cor voce deseja que continue o jogo? ==> ")).lower()
+                else:
+                    res = random.choice(["vermelho", "azul", "amarelo", "verde"])
+                    print(f"Cor escolhida pelo bot: {res}")
+                    time.sleep(1)
+                if res == "vermelho" or res == "azul" or res == "verde" or res == "amarelo":
+                    ultima_carta = Cartas(res, None, None)
+                    break
+                else: print("Cor escolhida incorretamente!"); time.sleep(1)
+        player.pop(r) if PlayerouBot == "Player" else bot.pop(r)
     else: 
-        0
+        if PlayerouBot == "Player":
+            ultima_carta = player.pop(r)
+        else: ultima_carta = bot.pop(r)
+
+    return ultima_carta
 
 
-def bot_jogada():
-    0
+def bot_jogada(ultima_carta, baralho, bot, player):
+    global dificuldade, vez
+    print(f"Bot está jogando... (Dificuldade: {dificuldade})")
+    print("Ultima carta jogada: ", ultima_carta)
+    tela_carregamento()
+    time.sleep(2)  # Simula o bot pensando
+
+    if dificuldade == 1:  # Fácil
+        # O bot tenta jogar a pior carta (menos estratégica)
+        jogaveis = [carta for carta in bot if carta_valida(ultima_carta, carta)]
+        if jogaveis:
+            cartaJogada = sorted(jogaveis, key=lambda c: (c.tipo != "Normal", c.valor))[0]  # Pior carta
+            print(f"Bot jogou: {cartaJogada}!\n")
+            r = bot.index(cartaJogada)
+            ultima_carta = Consequencia_Carta(r, cartaJogada, ultima_carta, baralho, player, bot, PlayerouBot="bot")
+            time.sleep(1.5)
+        else:
+            print("Bot comprou uma carta.")
+            comprar_carta_bot(baralho, bot, 1)
+        return ultima_carta
+
+    elif dificuldade == 2:  # Médio
+        # O bot pega a primeira carta válida
+        jogaveis = [carta for carta in bot if carta_valida(ultima_carta, carta)]
+        if jogaveis:
+            cartaJogada = jogaveis[0]
+            print(f"Bot jogou: {cartaJogada}")
+            ultima_carta = Consequencia_Carta(bot.index(cartaJogada), ultima_carta, baralho, bot, None, cartaJogada)
+        else:
+            print("Bot comprou uma carta.")
+            comprar_carta_bot(baralho, bot, 1)
+
+    elif dificuldade == 3 or dificuldade == 4:  # Difícil
+        # O bot joga estrategicamente
+        jogaveis = [carta for carta in bot if carta_valida(ultima_carta, carta)]
+        if jogaveis:
+            # Prioriza cartas estratégicas, como "Bloqueio", "+2", ou "Reverso"
+            cartaJogada = sorted(
+                jogaveis,
+                key=lambda c: (c.valor in ["+2", "Bloqueio", "Reverso", "+4"], c.valor),
+                reverse=True
+            )[0]
+            print(f"Bot jogou: {cartaJogada}")
+            ultima_carta = Consequencia_Carta(bot.index(cartaJogada), ultima_carta, baralho, bot, None, cartaJogada)
+        else:
+            print("Bot está analisando cartas...")
+            # Escolhe a melhor carta ao comprar
+            melhores_cartas = [baralho[i] for i in range(min(3, len(baralho)))]
+            melhor_carta = sorted(melhores_cartas, key=lambda c: (c.valor in ["+2", "+4"], c.tipo))[0]
+            print(f"Bot comprou: {melhor_carta}")
+            bot.append(melhor_carta)
+            baralho.remove(melhor_carta)
+    else: print("Dificuldade nao selecionada!")
+
+    vez += 1
+    return ultima_carta
 
 
 def verificacao():
@@ -170,13 +234,15 @@ def caminhos():
 
 def opcoes():
     global inicio
-    if inicio == "1": FuncaoUm()
+    if inicio == "1" and dificuldade != 0: FuncaoUm()
     elif inicio == "2": FuncaoDois()
     elif inicio == "3": FuncaoTres()
     elif inicio == "4": FuncaoCinco()
     elif inicio == "6": Mostrar_ranking()
     elif inicio == "5": print("Adeus!"); time.sleep(1)   
-    
+    else: print("Escolha uma dificuldade para jogar!"); time.sleep(1); FuncaoTres()
+
+
 def carta_valida(ultima_carta, cartaJogada):
     if (ultima_carta.cor == cartaJogada.cor or
     ultima_carta.valor == cartaJogada.valor or
@@ -185,7 +251,7 @@ def carta_valida(ultima_carta, cartaJogada):
     else: return False
     
 def criar_baralho():
-    cores = ["Azul", "Verde", "Amarelo", "Vermelho"]
+    cores = ["azul", "verde", "amarelo", "vermelho"]
     valores = list(range(0, 10)) + ["+2", "Bloqueio", "Reverso"]
     baralho = []
 
@@ -219,11 +285,16 @@ def sortear_cartas(baralho):
     return player, bot
 
 def comprar_carta(baralho, player, quant):
+    cartasCompradas = []
     if baralho:
         for x in range(quant):
             carta = baralho.pop()
+            cartasCompradas.append(str(carta))
             player.append(carta)
     else: print("Não há mais cartas no baralho!")
+    print(f"Voce comprou as cartas: {cartasCompradas}")
+    time.sleep(2)
+
 
 def comprar_carta_bot(baralho, bot, quant):
     if baralho:
@@ -242,7 +313,7 @@ def FuncaoTres():
     global dificuldade
     while True:
         LimpaTela()
-        dificuldade = input(str("""
+        dificuldade = int(input("""
     Selecione a dificuldade:
             
     (1) Facil      (O bot esta muito azarado hoje e vai pegar as piores cartas.)
@@ -251,16 +322,14 @@ def FuncaoTres():
     (4)  ...       (Apenas nao perca)
             
     ==> """))
-        if dificuldade in ["1", "2", "3", "4"]:
+        if dificuldade in [1, 2, 3, 4]:
             print(f"Dificuldade selecionada: {dificuldade}")
             time.sleep(1)
             LimpaTela()
             caminhos()
             break
         else: print("Opção invalida, tente novamente"); time.sleep(1)
-    #LimpaTela()
-    #caminhos()
-    return(dificuldade)
+
 
 def FuncaoCinco():
     global n_jogador
@@ -270,6 +339,7 @@ def FuncaoCinco():
     caminhos()
     return(n_jogador)
     
+
 def FuncaoUm():
     global vez
     LimpaTela()
@@ -288,33 +358,58 @@ def FuncaoUm():
         else: baralho.append(ultima_carta)
 
     while True:
- 
-        if vez%2 == 0:
-            print("Suas cartas:")
-            print(f"{ver_cartas(player)}")
-            print(f"Ultima carta na mesa - ({ultima_carta})")
-            print(f"Quantidade de cartas do bot: {len(bot)}")
-            r = int(input("""
+        global uno
+        if len(player) != 0 and len(bot) != 0:
+            if vez%2 == 0:
+                print("Suas cartas:")
+                print(f"{ver_cartas(player)}\n")
+                print(f"Ultima carta na mesa - ({ultima_carta})")
+                print(f"Quantidade de cartas do bot: {len(bot)}")
+                r = str(input("""
                     
     O que deseja fazer agora?
             
     (1) Jogar carta (Escolher numero)
     (2) Comprar carta (escreva 99)
-    (3) 
+                              
         ==> """))
-            if r >= 0 and r <= (len(player) - 1) and carta_valida(ultima_carta, cartaJogada = player[r]) == True:
-                print(f"Você jogou a carta {player[r]} \n")
-                Consequencia_Carta(ultima_carta, baralho, player, bot, PlayerouBot = "Player", cartaJogada = player[r])
-                ultima_carta = player.pop(r)
+                if len(player) > 1: uno = 0
+                if len(player) == 1 and r != "uno" and uno == 0:
+                    print("Você nao gritou uno com apenas uma carta! tera que comprar mais duas cartas."); time.sleep(2)
+                    comprar_carta(baralho, player, quant = 2)
+                elif len(player) == 1 and r == "uno":
+                    print("Voce lembrou de ter falado UNO!"); time.sleep(2); LimpaTela()
+                    uno = 1
+                try: 
+                    r = int(r)
+                    if r >= 0 and r <= (len(player) - 1) and carta_valida(ultima_carta, cartaJogada = player[r]) == True:
 
-                time.sleep(1.5)
-            elif r != 99: print("Opção invalida, tente novamente"); time.sleep(1.5)
-            else: 
-                comprar_carta(baralho, player, quant = 1)
-            LimpaTela()
-            vez += 1
+                        print(f"Você jogou a carta {player[r]} \n")
+                        cartaJogada = player[r]
+                        ultima_carta = Consequencia_Carta(r, cartaJogada, ultima_carta, baralho, player, bot, PlayerouBot = "Player")
+                        vez += 1
+                        time.sleep(1.5)
+                    elif r == 100: player.pop()
+                    elif r == 101: bot.pop()
+                    # elif r != 99: print("Opção invalida, tente novamente"); time.sleep(1.5)
+                    else: 
+                        comprar_carta(baralho, player, quant = 1)
+                        vez += 1
+                    LimpaTela()
+                except:
+                    if uno != 1: print("Opção invalida, tente novamente"); time.sleep(1.5)
 
-        else: bot_jogada()
+            else: ultima_carta = bot_jogada(ultima_carta, baralho, bot, player); vez += 1
+        
+        else:
+            if len(player) == 0:
+                LimpaTela()
+                print("Parabéns, você ganhou a partida!"); time.sleep(2)
+                break
+            else:
+                LimpaTela()
+                print("O bot ganhou a partida!"); time.sleep(2)
+                break
         
 
 
