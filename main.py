@@ -395,9 +395,11 @@ def FuncaoUm():
                     elif r == 100: player.pop()
                     elif r == 101: bot.pop()
                     # elif r != 99: print("Opção invalida, tente novamente"); time.sleep(1.5)
-                    else: 
+                    elif r == 99: 
                         comprar_carta(baralho, player, quant = 1)
                         vez += 1
+
+                    else: print("Opção invalida, tente novamente"); time.sleep(1.5)
                     LimpaTela()
                 except:
                     if uno != 1: print("Opção invalida, tente novamente"); time.sleep(1.5)
